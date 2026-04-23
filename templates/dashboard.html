@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Cost Optimizer AI - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-value.savings {
+            color: #10b981;
+        }
+        
+        .stat-value.percentage {
+            color: #f59e0b;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .recommendations {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .rec-item {
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            background: #f9fafb;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .rec-item:hover {
+            background: #f3f4f6;
+            transform: translateX(5px);
+        }
+        
+        .rec-item.high {
+            border-left-color: #ef4444;
+        }
+        
+        .rec-item.medium {
+            border-left-color: #f59e0b;
+        }
+        
+        .rec-item.low {
+            border-left-color: #10b981;
+        }
+        
+        .rec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .rec-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .rec-savings {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #10b981;
+        }
+        
+        .rec-description {
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .rec-action {
+            color: #667eea;
+            font-weight: 500;
+            padding: 10px;
+            background: #eef2ff;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .priority-badge.high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .priority-badge.medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .priority-badge.low {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 AWS Cost Optimizer AI</h1>
+            <p class="subtitle">Dashboard de Análisis y Optimización de Costes</p>
+            <p style="color: #999; margin-top: 10px;">Generado: 23/04/2026 16:00:29</p>
+        </header>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">💵 Coste Actual</div>
+                <div class="stat-value">$1247.89</div>
+                <div style="color: #999; margin-top: 5px;">USD/mes</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">💡 Ahorro Potencial</div>
+                <div class="stat-value savings">$593.28</div>
+                <div style="color: #999; margin-top: 5px;">USD/mes</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">📊 Porcentaje de Ahorro</div>
+                <div class="stat-value percentage">47.5%</div>
+                <div style="color: #999; margin-top: 5px;">del coste total</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">🎯 Recomendaciones</div>
+                <div class="stat-value">8</div>
+                <div style="color: #999; margin-top: 5px;">oportunidades</div>
+            </div>
+        </div>
+        
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h2 class="chart-title">📊 Costes por Servicio AWS</h2>
+                <canvas id="servicesChart"></canvas>
+            </div>
+            
+            <div class="chart-card">
+                <h2 class="chart-title">💰 Top 5 Ahorros Potenciales</h2>
+                <canvas id="savingsChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="recommendations">
+            <h2 class="chart-title">🔥 Recomendaciones Prioritarias</h2>
+            
+            
+            <div class="rec-item high">
+                <div class="rec-header">
+                    <div>
+                        <span class="priority-badge high">🔴 HIGH</span>
+                        <span style="color: #999; margin-left: 10px;">Rightsizing EC2</span>
+                    </div>
+                    <div class="rec-savings">$190.09/mes</div>
+                </div>
+                <div class="rec-title">Reducir tamaño de instancias EC2 infrautilizadas</div>
+                <div class="rec-description">Se detectaron 3 instancias t3.large con uso de CPU < 25% de forma consistente. Estas instancias están sobredimensionadas.</div>
+                <div class="rec-action">
+                    <strong>✅ Acción:</strong> Cambiar instancias i-0abc123def456, i-0def789ghi012 y i-0jkl901mno234 de t3.large a t3.medium
+                </div>
+                <div style="margin-top: 10px; color: #999; font-size: 0.9em;">
+                    Esfuerzo: LOW | Riesgo: LOW | 
+                    Ahorro: 50.0%
+                </div>
+            </div>
+            
+            <div class="rec-item high">
+                <div class="rec-header">
+                    <div>
+                        <span class="priority-badge high">🔴 HIGH</span>
+                        <span style="color: #999; margin-left: 10px;">Recursos huérfanos</span>
+                    </div>
+                    <div class="rec-savings">$35.00/mes</div>
+                </div>
+                <div class="rec-title">Eliminar volúmenes EBS no adjuntos</div>
+                <div class="rec-description">2 volúmenes EBS (vol-0def456ghi, vol-0jkl012mno) no están adjuntos a ninguna instancia y están generando costes innecesarios.</div>
+                <div class="rec-action">
+                    <strong>✅ Acción:</strong> Crear snapshot de respaldo y eliminar volúmenes huérfanos
+                </div>
+                <div style="margin-top: 10px; color: #999; font-size: 0.9em;">
+                    Esfuerzo: LOW | Riesgo: LOW | 
+                    Ahorro: 100.0%
+                </div>
+            </div>
+            
+            <div class="rec-item high">
+                <div class="rec-header">
+                    <div>
+                        <span class="priority-badge high">🔴 HIGH</span>
+                        <span style="color: #999; margin-left: 10px;">Optimización S3</span>
+                    </div>
+                    <div class="rec-savings">$142.50/mes</div>
+                </div>
+                <div class="rec-title">Migrar datos antiguos a S3 Glacier</div>
+                <div class="rec-description">Los buckets 'company-backups-legacy' y 'company-logs-archive' contienen 7.5TB de datos con acceso infrecuente en clase STANDARD.</div>
+                <div class="rec-action">
+                    <strong>✅ Acción:</strong> Configurar lifecycle policies para mover datos > 90 días a S3 Glacier Deep Archive
+                </div>
+                <div style="margin-top: 10px; color: #999; font-size: 0.9em;">
+                    Esfuerzo: LOW | Riesgo: LOW | 
+                    Ahorro: 82.6%
+                </div>
+            </div>
+            
+            <div class="rec-item medium">
+                <div class="rec-header">
+                    <div>
+                        <span class="priority-badge medium">🟡 MEDIUM</span>
+                        <span style="color: #999; margin-left: 10px;">Reserved Instances</span>
+                    </div>
+                    <div class="rec-savings">$124.98/mes</div>
+                </div>
+                <div class="rec-title">Comprar Reserved Instances para RDS</div>
+                <div class="rec-description">Las instancias RDS prod-mysql-01 y dev-postgres-01 llevan > 6 meses activas 24/7. Reserved Instances de 1 año ofrecen ~40% descuento.</div>
+                <div class="rec-action">
+                    <strong>✅ Acción:</strong> Comprar 2 Reserved Instances de 1 año con pago parcial adelantado
+                </div>
+                <div style="margin-top: 10px; color: #999; font-size: 0.9em;">
+                    Esfuerzo: LOW | Riesgo: MEDIUM | 
+                    Ahorro: 40.0%
+                </div>
+            </div>
+            
+            <div class="rec-item medium">
+                <div class="rec-header">
+                    <div>
+                        <span class="priority-badge medium">🟡 MEDIUM</span>
+                        <span style="color: #999; margin-left: 10px;">Recursos huérfanos</span>
+                    </div>
+                    <div class="rec-savings">$3.60/mes</div>
+                </div>
+                <div class="rec-title">Liberar IP elástica no asociada</div>
+                <div class="rec-description">IP elástica eipalloc-0def456 no está asociada a ninguna instancia y genera coste de $3.60/mes.</div>
+                <div class="rec-action">
+                    <strong>✅ Acción:</strong> Liberar IP elástica si no se necesita o asociarla a una instancia
+                </div>
+                <div style="margin-top: 10px; color: #999; font-size: 0.9em;">
+                    Esfuerzo: LOW | Riesgo: LOW | 
+                    Ahorro: 100.0%
+                </div>
+            </div>
+            
+            <div class="rec-item medium">
+                <div class="rec-header">
+                    <div>
+                        <span class="priority-badge medium">🟡 MEDIUM</span>
+                        <span style="color: #999; margin-left: 10px;">Limpieza de snapshots</span>
+                    </div>
+                    <div class="rec-savings">$19.00/mes</div>
+                </div>
+                <div class="rec-title">Eliminar snapshots antiguos</div>
+                <div class="rec-description">2 snapshots EBS tienen más de 1 año de antigüedad (456 y 523 días). Evaluar si son necesarios.</div>
+                <div class="rec-action">
+                    <strong>✅ Acción:</strong> Revisar política de retención y eliminar snapshots obsoletos
+                </div>
+                <div style="margin-top: 10px; color: #999; font-size: 0.9em;">
+                    Esfuerzo: LOW | Riesgo: MEDIUM | 
+                    Ahorro: 100.0%
+                </div>
+            </div>
+            
+            <div class="rec-item low">
+                <div class="rec-header">
+                    <div>
+                        <span class="priority-badge low">🟢 LOW</span>
+                        <span style="color: #999; margin-left: 10px;">Consolidación RDS</span>
+                    </div>
+                    <div class="rec-savings">$78.11/mes</div>
+                </div>
+                <div class="rec-title">Evaluar consolidación de base de datos dev</div>
+                <div class="rec-description">La instancia dev-postgres-01 tiene solo 3 conexiones promedio. Considerar usar RDS Proxy o consolidar con prod.</div>
+                <div class="rec-action">
+                    <strong>✅ Acción:</strong> Evaluar migrar dev a instancia más pequeña (db.t3.micro) o usar Aurora Serverless v2
+                </div>
+                <div style="margin-top: 10px; color: #999; font-size: 0.9em;">
+                    Esfuerzo: MEDIUM | Riesgo: LOW | 
+                    Ahorro: 50.0%
+                </div>
+            </div>
+            
+            <div class="rec-item low">
+                <div class="rec-header">
+                    <div>
+                        <span class="priority-badge low">🟢 LOW</span>
+                        <span style="color: #999; margin-left: 10px;">Optimización Lambda</span>
+                    </div>
+                    <div class="rec-savings">$0.00/mes</div>
+                </div>
+                <div class="rec-title">Lambda ya está optimizado</div>
+                <div class="rec-description">El coste de Lambda ($23.45) es razonable para 2.5M invocaciones. No se requiere acción.</div>
+                <div class="rec-action">
+                    <strong>✅ Acción:</strong> Mantener configuración actual
+                </div>
+                <div style="margin-top: 10px; color: #999; font-size: 0.9em;">
+                    Esfuerzo: NONE | Riesgo: NONE | 
+                    Ahorro: 0.0%
+                </div>
+            </div>
+            
+        </div>
+        
+        <footer>
+            <p>Desarrollado con ❤️ usando Amazon Bedrock (Claude 3.5) y AWS Cost Explorer</p>
+            <p style="margin-top: 10px; opacity: 0.8;">AWS Cost Optimizer AI © 2026</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Gráfico de costes por servicio
+        const servicesCtx = document.getElementById('servicesChart').getContext('2d');
+        new Chart(servicesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ["Elastic Compute Cloud - Compute", "Relational Database Service", "Simple Storage Service", "Elastic Block Store", "CloudWatch", "Lambda", "Virtual Private Cloud", "CloudFront", "Route 53", "Key Management Service"],
+                datasets: [{
+                    data: [456.23, 312.45, 189.67, 145.32, 67.89, 23.45, 18.9, 15.67, 12.31, 6.0],
+                    backgroundColor: [
+                        '#667eea', '#764ba2', '#f093fb', '#4facfe',
+                        '#43e97b', '#fa709a', '#fee140', '#30cfd0',
+                        '#a8edea', '#fed6e3'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': $' + context.parsed.toFixed(2);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Gráfico de ahorros potenciales
+        const savingsCtx = document.getElementById('savingsChart').getContext('2d');
+        new Chart(savingsCtx, {
+            type: 'bar',
+            data: {
+                labels: ["Reducir tama\u00f1o de instancias EC2 infraut...", "Migrar datos antiguos a S3 Glacier", "Comprar Reserved Instances para RDS", "Evaluar consolidaci\u00f3n de base de datos d...", "Eliminar vol\u00famenes EBS no adjuntos"],
+                datasets: [{
+                    label: 'Ahorro USD/mes',
+                    data: [190.09, 142.5, 124.98, 78.11, 35.0],
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

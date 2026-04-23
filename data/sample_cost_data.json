@@ -1,0 +1,200 @@
+{
+  "analysis_period": {
+    "start": "2026-03-24",
+    "end": "2026-04-23"
+  },
+  "total_cost": 1247.89,
+  "currency": "USD",
+  "services": [
+    {
+      "service": "Amazon Elastic Compute Cloud - Compute",
+      "cost": 456.23,
+      "usage_hours": 2160,
+      "instances": [
+        {
+          "instance_id": "i-0abc123def456",
+          "instance_type": "t3.large",
+          "avg_cpu": 18.5,
+          "avg_memory": 35.2,
+          "monthly_cost": 152.08
+        },
+        {
+          "instance_id": "i-0def789ghi012",
+          "instance_type": "t3.large",
+          "avg_cpu": 22.1,
+          "avg_memory": 41.8,
+          "monthly_cost": 152.08
+        },
+        {
+          "instance_id": "i-0ghi345jkl678",
+          "instance_type": "t3.medium",
+          "avg_cpu": 45.3,
+          "avg_memory": 62.1,
+          "monthly_cost": 76.04
+        },
+        {
+          "instance_id": "i-0jkl901mno234",
+          "instance_type": "t3.large",
+          "avg_cpu": 15.7,
+          "avg_memory": 28.9,
+          "monthly_cost": 76.03
+        }
+      ]
+    },
+    {
+      "service": "Amazon Relational Database Service",
+      "cost": 312.45,
+      "instances": [
+        {
+          "db_identifier": "prod-mysql-01",
+          "engine": "mysql",
+          "instance_class": "db.t3.medium",
+          "storage_gb": 100,
+          "avg_connections": 12,
+          "monthly_cost": 156.22
+        },
+        {
+          "db_identifier": "dev-postgres-01",
+          "engine": "postgres",
+          "instance_class": "db.t3.small",
+          "storage_gb": 50,
+          "avg_connections": 3,
+          "monthly_cost": 156.23
+        }
+      ]
+    },
+    {
+      "service": "Amazon Simple Storage Service",
+      "cost": 189.67,
+      "buckets": [
+        {
+          "bucket_name": "company-backups-legacy",
+          "storage_gb": 2500,
+          "storage_class": "STANDARD",
+          "monthly_cost": 57.50,
+          "last_accessed": "2025-11-15"
+        },
+        {
+          "bucket_name": "company-logs-archive",
+          "storage_gb": 5000,
+          "storage_class": "STANDARD",
+          "monthly_cost": 115.00,
+          "last_accessed": "2026-01-10"
+        },
+        {
+          "bucket_name": "company-assets-prod",
+          "storage_gb": 750,
+          "storage_class": "STANDARD",
+          "monthly_cost": 17.17,
+          "last_accessed": "2026-04-23"
+        }
+      ]
+    },
+    {
+      "service": "Amazon Elastic Block Store",
+      "cost": 145.32,
+      "volumes": [
+        {
+          "volume_id": "vol-0abc123def",
+          "size_gb": 500,
+          "volume_type": "gp3",
+          "attached": true,
+          "monthly_cost": 40.00
+        },
+        {
+          "volume_id": "vol-0def456ghi",
+          "size_gb": 200,
+          "volume_type": "gp2",
+          "attached": false,
+          "monthly_cost": 20.00,
+          "note": "Huérfano - instancia terminada"
+        },
+        {
+          "volume_id": "vol-0ghi789jkl",
+          "size_gb": 300,
+          "volume_type": "gp3",
+          "attached": true,
+          "monthly_cost": 24.00
+        },
+        {
+          "volume_id": "vol-0jkl012mno",
+          "size_gb": 150,
+          "volume_type": "gp2",
+          "attached": false,
+          "monthly_cost": 15.00,
+          "note": "Huérfano - instancia terminada"
+        }
+      ],
+      "snapshots": [
+        {
+          "snapshot_id": "snap-0abc123",
+          "size_gb": 200,
+          "age_days": 456,
+          "monthly_cost": 10.00
+        },
+        {
+          "snapshot_id": "snap-0def456",
+          "size_gb": 180,
+          "age_days": 523,
+          "monthly_cost": 9.00
+        }
+      ]
+    },
+    {
+      "service": "Amazon CloudWatch",
+      "cost": 67.89,
+      "metrics": 15000,
+      "logs_gb": 250,
+      "alarms": 45
+    },
+    {
+      "service": "AWS Lambda",
+      "cost": 23.45,
+      "invocations": 2500000,
+      "duration_gb_seconds": 125000
+    },
+    {
+      "service": "Amazon Virtual Private Cloud",
+      "cost": 18.90,
+      "nat_gateways": 2,
+      "elastic_ips": [
+        {
+          "allocation_id": "eipalloc-0abc123",
+          "associated": true,
+          "monthly_cost": 3.60
+        },
+        {
+          "allocation_id": "eipalloc-0def456",
+          "associated": false,
+          "monthly_cost": 3.60,
+          "note": "No asociada - cobrando sin uso"
+        }
+      ]
+    },
+    {
+      "service": "Amazon CloudFront",
+      "cost": 15.67,
+      "data_transfer_gb": 1250
+    },
+    {
+      "service": "Amazon Route 53",
+      "cost": 12.31,
+      "hosted_zones": 8,
+      "queries": 5000000
+    },
+    {
+      "service": "AWS Key Management Service",
+      "cost": 6.00,
+      "keys": 6
+    }
+  ],
+  "resource_summary": {
+    "ec2_instances": 4,
+    "rds_instances": 2,
+    "s3_buckets": 3,
+    "ebs_volumes": 4,
+    "orphaned_volumes": 2,
+    "unattached_eips": 1,
+    "old_snapshots": 2
+  }
+}
